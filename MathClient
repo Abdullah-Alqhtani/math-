@@ -1,0 +1,52 @@
+package a;
+import java.io.*;
+import java.net.*;
+
+public class MathClient {
+    public static void main(String[] args) {
+        try (Socket socket = new Socket("localhost", 1234);
+             BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+             PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+             BufferedReader userInput = new BufferedReader(new InputStreamReader(System.in))) {
+
+            System.out.println("Connected to Math Server!");
+            System.out.println(in.readLine()); // Welcome message
+            System.out.println(in.readLine()); // List of operations
+
+            String operation;
+            while (true) {
+                System.out.print("Select an operation by entering its number or 'exit': ");
+                operation = userInput.readLine();
+                out.println(operation);
+
+                String response = in.readLine();
+                System.out.println("Server: " + response);
+
+                if (response.equalsIgnoreCase("Goodbye!")) {
+                    break;
+                }
+
+                // If input is valid, the server will request further numbers
+                if (response.startsWith("Enter")) {
+                    System.out.print(response + ": ");
+                    String num1 = userInput.readLine();
+                    out.println(num1);
+
+                    response = in.readLine();
+                    System.out.println("Server: " + response);
+
+                    if (response.startsWith("Enter")) {
+                        System.out.print(response + ": ");
+                        String num2 = userInput.readLine();
+                        out.println(num2);
+
+                        response = in.readLine();
+                        System.out.println("Server: " + response);
+                    }
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
